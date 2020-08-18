@@ -16,11 +16,11 @@ public:
 	//load (and generate) a shader program from a file (and skips Geometry shader if it was nullptr)
 	static Shader LoadShader(const char* cShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name);
 	//retrieves a stored texture
-	static Shader GetShader(std::string name);
+	static Shader& GetShader(std::string name);
 	//loads (and generates a texture file)
 	static Texture2D LoadTexture(const char* file, bool alpha, std::string name);
 	// retrieves a stored texture
-	static Texture2D GetTexture(std::string name);
+	static Texture2D& GetTexture(std::string name);
 	// deallocate all the loaded resources
 	static void Clear();
 

@@ -9,6 +9,7 @@
 #include<string>
 #include <vector>
 
+#include "Game.h"
 
 //functions
 void framebufferSizeCallBack(GLFWwindow* window, int width, int height);
@@ -30,6 +31,7 @@ bool firstMouse = true;
 float deltaTime = 0.f;
 float lastFrame = 0.f;
 
+Game* game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 int main()
 {
@@ -48,14 +50,18 @@ int main()
 	}
 	setupWindowSettings(window);
 
+	game->Init();
+	game->Render();
 	while (!glfwWindowShouldClose(window))
 	{
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 		processInput(window);
 
+		game->Render();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

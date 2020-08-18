@@ -18,7 +18,7 @@ Game::~Game()
 void Game::Init()
 {
 	//load shaders
-	ResourceManager::LoadShader("Shaders/SpriteFrag.glsl", "Shaders/SpriteVertex.glsl", nullptr, "sprite");
+	ResourceManager::LoadShader("Shaders/SpriteVer.glsl", "Shaders/SpriteFrag.glsl", nullptr, "sprite");
 	//configure 
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width),
 		static_cast<float>(this->Height), 0.0f, -1.f, 1.0f);
@@ -27,7 +27,7 @@ void Game::Init()
 	// set render-specific controls
 	Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 	//load textures
-	ResourceManager::LoadTexture("textures/awsomeface.png", true, "face");
+	ResourceManager::LoadTexture("resources/textures/awesomeface.png", true, "face");
 }
 
 //game loop
