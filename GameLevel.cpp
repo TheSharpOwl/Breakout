@@ -1,5 +1,6 @@
 #include "GameLevel.h"
 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 
@@ -50,10 +51,15 @@ void GameLevel::init(std::vector<std::vector<unsigned int>> tileData, unsigned i
 	float UnitWidth = levelWidth / static_cast<float>(width), unitHeight = levelHeight / height;
 
 	//initialize the level with the tiles
-	for (unsigned int y = 0; y < width; y++)
+	for (unsigned int y = 0; y < height; y++)
 	{
 		for (unsigned int x = 0; x < width; x++)
 		{
+			if (tileData.size() < y || tileData[y].size() < x)
+			{
+				std::cout << "Problem !!!\n";
+				exit(1);
+			}
 			if (tileData[y][x] == 1) // solid
 			{
 				glm::vec2 pos(UnitWidth * x, unitHeight * y);
@@ -79,6 +85,5 @@ void GameLevel::init(std::vector<std::vector<unsigned int>> tileData, unsigned i
 
 		}
 	}
-
 
 }
