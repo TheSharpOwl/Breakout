@@ -18,6 +18,7 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 //I coded this to make the code look better [Not in Tutorial]
 void setupWindowSettings(GLFWwindow* window);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 //settings
 const unsigned int SCREEN_WIDTH = 800;
@@ -50,6 +51,9 @@ int main()
 	}
 	setupWindowSettings(window);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	game->Init();
 	game->Render();
 	while (!glfwWindowShouldClose(window))
@@ -59,7 +63,9 @@ int main()
 		lastFrame = currentFrame;
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		processInput(window);
+		game->ProcessInput(deltaTime);
+
+		game->Update(deltaTime);
 
 		game->Render();
 
@@ -76,6 +82,7 @@ int main()
 void setupWindowSettings(GLFWwindow* window)
 {
 	glfwMakeContextCurrent(window);
+	glfwSetKeyCallback(window, key_callback);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallBack);
 	glfwSetCursorPosCallback(window, mouseCallback);
 	glfwSetScrollCallback(window, scrollCallback);
@@ -126,4 +133,20 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+}
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+	// when a user presses the escape key, we set the WindowShouldClose property to true, closing the application
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS)
+			game->Keys[key] = true;
+		else if (action == GLFW_RELEASE)
+		{
+			game->Keys[key] = false;
+			//game->KeysProcessed[key] = false;
+		}
+	}
 }
