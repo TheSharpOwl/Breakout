@@ -2,7 +2,7 @@
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
 #include "BallObject.h"
-// to debug 
+// to debug TODO delete
 #include <iostream>
 
 
@@ -16,7 +16,7 @@ const float BALL_RADIUS = 12.5f;
 
 BallObject* Ball;
 
-bool CheckCollision(GameObject& one, GameObject& two) //AABB - AABB collision 
+bool CheckCollision(const GameObject& one, const GameObject& two) //AABB - AABB collision 
 {
 	bool collisonX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
 	bool collisonY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
@@ -24,6 +24,22 @@ bool CheckCollision(GameObject& one, GameObject& two) //AABB - AABB collision
 	return collisonX && collisonY;
 }
 
+bool CheckCollision(const BallObject& one, const GameObject two)
+{
+	glm::vec2 center(one.Position + one.Radius);
+	glm::vec2 aabbHalfExtents(two.Size.x / 2.0f, two.Size.y / 2.0f);
+	glm::vec2 aabbCenter(
+		two.Position.x + aabbHalfExtents.x,
+		two.Position.y + aabbHalfExtents.y
+	);
+	glm::vec2 difference = center - aabbCenter;
+	glm::vec2 clamped = glm::clamp(difference, -aabbHalfExtents, aabbHalfExtents);
+
+	glm::vec2 closest = aabbCenter + clamped;
+	difference = closest - center;
+
+	return glm::length(difference) < one.Radius;
+}
 
 Game::Game(unsigned int width, unsigned int height)
 	:State(GAME_ACTIVE), Keys(),Width(width), Height(height)
