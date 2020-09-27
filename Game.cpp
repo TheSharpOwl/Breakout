@@ -16,6 +16,15 @@ const float BALL_RADIUS = 12.5f;
 
 BallObject* Ball;
 
+bool CheckCollision(GameObject& one, GameObject& two) //AABB - AABB collision 
+{
+	bool collisonX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
+	bool collisonY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
+
+	return collisonX && collisonY;
+}
+
+
 Game::Game(unsigned int width, unsigned int height)
 	:State(GAME_ACTIVE), Keys(),Width(width), Height(height)
 {
@@ -103,6 +112,7 @@ void Game::ProcessInput(float dt)
 void Game::Update(float dt)
 {
 	Ball->move(dt, this->Width);
+	this->DoCollisions();
 }
 void Game::Render()
 {
@@ -117,4 +127,13 @@ void Game::Render()
 		Player->Draw(*Renderer);
 		Ball->Draw(*Renderer);
 	}
+}
+
+void Game::DoCollisions()
+{
+	for (GameObject& box : this->Levels[this->Level].Bricks)
+		if (!box.Destroyed)
+			if (CheckCollision(*Ball, box))
+				if (!box.IsSolid)
+					box.Destroyed = true;
 }
