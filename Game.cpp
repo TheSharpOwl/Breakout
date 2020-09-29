@@ -4,7 +4,7 @@
 #include "BallObject.h"
 // to debug TODO delete
 #include <iostream>
-
+#include <cmath>
 
 SpriteRenderer* Renderer;
 GameObject* Player;
@@ -149,7 +149,82 @@ void Game::DoCollisions()
 {
 	for (GameObject& box : this->Levels[this->Level].Bricks)
 		if (!box.Destroyed)
-			if (CheckCollision(*Ball, box))
+		{
+			Collision collision = checkCollision(*Ball, box);
+			if (std::get<0>(collision)) // if there's a collision
+			{
+				// destroy the block if it wasn't solid
 				if (!box.IsSolid)
 					box.Destroyed = true;
+				Direction dir = std::get<1>(collision);
+				glm::vec2 diffVector = std::get<2>(collision);
+
+				if (dir == LEFT || dir == RIGHT) // horizontal collision
+				{
+					Ball->Velocity.x *= -1;
+					float penetration = Ball->Radius - std::abs(diffVector.x);
+					if (dir == LEFT)
+						Ball->Position.x += penetration; // move the ball to the right
+					else
+						Ball->Position.x -= penetration; // or move it to the left
+				}
+				else // vertical collision
+				{
+					Ball->Velocity.y *= -1;
+					float penetration = Ball->Radius - std::abs(diffVector.y);
+					if (dir == LEFT)
+						Ball->Position.y -= penetration; // move the ball up
+					else
+						Ball->Position.y += penetration; // or move it down
+				}
+			}
+		}
+		
+		
+		
+}
+
+Direction VectorDirection(glm::vec2 target)
+{
+	glm::vec2 compass[4];
+	compass[0] = glm::vec2(0.f, 1.f);
+	compass[1] = glm::vec2(1.f, 0.f);
+	compass[2] = glm::vec2(0.f, -1.f);
+	compass[3] = glm::vec2(-1.f, 0.f);
+
+	// mx = max 
+	float mx = 0.f;
+	int bestMatch = -1;
+
+	for (int i = 0; i < 4; i++)
+	{
+		float dotPro = glm::dot(glm::normalize(target), compass[i]);
+		if (dotPro > mx)
+		{
+			mx = dotPro;
+			bestMatch = i;
+		}
+	}
+
+	return Direction(bestMatch);
+}
+
+Collision checkCollision(const BallObject& one, const GameObject& two)
+{
+	glm::vec2 center(one.Position + one.Radius);
+	glm::vec2 aabbHalfExtents(two.Size.x / 2.0f, two.Size.y / 2.0f);
+	glm::vec2 aabbCenter(
+		two.Position.x + aabbHalfExtents.x,
+		two.Position.y + aabbHalfExtents.y
+	);
+	glm::vec2 difference = center - aabbCenter;
+	glm::vec2 clamped = glm::clamp(difference, -aabbHalfExtents, aabbHalfExtents);
+
+	glm::vec2 closest = aabbCenter + clamped;
+	difference = closest - center;
+
+	if (glm::length(difference) <= one.Radius)
+		return std::make_tuple(true, VectorDirection(difference), difference);
+	else
+		return std::make_tuple(false, UP, glm::vec2(0.0f, 0.0f));
 }
