@@ -129,6 +129,13 @@ void Game::Update(float dt)
 {
 	Ball->move(dt, this->Width);
 	this->DoCollisions();
+
+	if (Ball->Position.y >= this->Height) // if the bottom reached the bottom edge or got out
+	{
+		this->ResetLevel();
+		this->ResetPlayer();
+
+	}
 }
 void Game::Render()
 {
@@ -192,11 +199,31 @@ void Game::DoCollisions()
 		float strength = 2.0f;
 		glm::vec2 oldVelocity = Ball->Velocity;
 		Ball->Velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
-		Ball->Velocity.y = -Ball->Velocity.y;
+		Ball->Velocity.y = -1.0f * abs(Ball->Velocity.y);
 		Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
 	}
 		
 		
+}
+
+void Game::ResetLevel()
+{
+	if (this->Level == 0)
+		this->Levels[0].Load("levels/one.lvl", this->Width, this->Height / 2);
+	else if (this->Level == 1)
+		this->Levels[1].Load("levels/two.lvl", this->Width, this->Height / 2);
+	else if (this->Level == 2)
+		this->Levels[2].Load("levels/three.lvl", this->Width, this->Height / 2);
+	else if (this->Level == 3)
+		this->Levels[3].Load("levels/four.lvl", this->Width, this->Height / 2);
+}
+
+void Game::ResetPlayer()
+{
+	// reset player/ball stats
+	Player->Size = PLAYER_SIZE;
+	Player->Position = glm::vec2(this->Width / 2.0f - PLAYER_SIZE.x / 2.0f, this->Height - PLAYER_SIZE.y);
+	Ball->Reset(Player->Position + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -(BALL_RADIUS * 2.0f)), INITIAL_BALL_VELOCITY);
 }
 
 Direction VectorDirection(glm::vec2 target)
