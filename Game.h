@@ -3,7 +3,7 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include "Gamelevel.h"
-
+#include "PowerUp.hpp"
 // forward decleration
 class BallObject;
 
@@ -47,6 +47,8 @@ public:
 	std::vector<GameLevel> Levels;
 	unsigned int           Level;
 
+	std::vector<PowerUp> PowerUps;
+
 	Game(unsigned int width, unsigned int height);
 	~Game();
 
@@ -62,5 +64,10 @@ public:
 
 	void ResetLevel();
 	void ResetPlayer();
+	// spawns a power up at the location of a given block
+	void SpawnPowerUps(GameObject& block);
+
+	// manages all active powerups
+	void UpdatePowerUps(float dt);
 };
 

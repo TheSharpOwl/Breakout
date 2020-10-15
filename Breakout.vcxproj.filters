@@ -51,6 +51,12 @@
     <ClCompile Include="ParticleGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PostProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerUp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -86,6 +92,12 @@
     <ClInclude Include="ParticleGenerator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PostProcessor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerUp.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SpriteVer.glsl">
@@ -98,6 +110,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\ParticleVer.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\PostProcessingFrag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\PostProcessingVert.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
