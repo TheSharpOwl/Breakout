@@ -7,8 +7,6 @@
 // forward decleration
 class BallObject;
 
-
-
 enum GameState
 {
 	GAME_ACTIVE,
