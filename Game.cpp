@@ -6,12 +6,19 @@
 #include  "PostProcessor.hpp"
 #include "PowerUp.hpp"
 #include <iostream>
+#include<irrKlang.h>
+
+using namespace irrklang;
+
+// TODO : BUG : power up sticky ball doesn't seem to work (turn off the rest and test)
+// TODO : BUG : first time the bricks are so weak (ball can pass them and continue forawed)
 
 SpriteRenderer* Renderer;
 GameObject* Player;
 ParticleGenerator* Particles;
 BallObject* Ball;
 PostProcessor* Effects;
+ISoundEngine* SoundEngine = createIrrKlangDevice();
 
 // Initial velocity of the Ball
 const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
@@ -25,10 +32,9 @@ bool CheckCollision(const BallObject& one, const GameObject two);
 bool isOtherPowerUpActive(std::vector<PowerUp>& powerUps, std::string type);
 
 Game::Game(unsigned int width, unsigned int height)
-	:State(GAME_ACTIVE), Keys(), Width(width), Height(height)
-{
+	:State(GAME_ACTIVE), Keys(), Width(width), Height(height) {}
 
-}
+
 Game::~Game()
 {
 	delete Renderer;
@@ -119,12 +125,16 @@ void Game::Init()
 	glm::vec2 ballPos = playerPos + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS,
 		-BALL_RADIUS * 2.0f);
 	Ball = new BallObject(ballPos, BALL_RADIUS, INITIAL_BALL_VELOCITY, ResourceManager::GetTexture("face"));
+
+	// TODO uncomment
+	//SoundEngine->play2D("resources/audio/breakout.mp3", true);
 }
 void ActivatePowerUp(PowerUp& powerUp)
 {
 	if (powerUp.Type == "speed")
 	{
 		Ball->Velocity *= 1.2;
+
 	}
 	else if (powerUp.Type == "sticky")
 	{
@@ -237,11 +247,13 @@ void Game::DoCollisions()
 				{
 					box.Destroyed = true;
 					this->SpawnPowerUps(box);
+					SoundEngine->play2D("resources/audio/bleep.mp3");
 				}
 				else
 				{
 					ShakeTime = 0.05f;
 					Effects->Shake = true;
+					SoundEngine->play2D("resources/audio/solid.wav");
 				}
 				Direction dir = std::get<1>(collision);
 				glm::vec2 diffVector = std::get<2>(collision);
@@ -282,6 +294,7 @@ void Game::DoCollisions()
 			if (CheckCollision(*Player, powerUp))
 			{	// collided with player, now activate powerup
 				ActivatePowerUp(powerUp);
+				SoundEngine->play2D("resources/audio/powerup.wav");
 				powerUp.Destroyed = true;
 				powerUp.Activated = true;
 			}
@@ -292,7 +305,7 @@ void Game::DoCollisions()
 	Collision ballPlayerCollision = checkCollision(*Ball, *Player);
 	if (!Ball->Stuck && std::get<0>(ballPlayerCollision))
 	{
-
+		SoundEngine->play2D("resources/audio/bleep.wav");
 		float centerBoard = Player->Position.x + Player->Size.x / 2.0f;
 		float distance = (Ball->Position.x + Ball->Radius) - centerBoard;
 		float percentage = distance / (Player->Size.x / 2.0f);
@@ -303,21 +316,7 @@ void Game::DoCollisions()
 		Ball->Velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
 		Ball->Velocity.y = -1.0f * abs(Ball->Velocity.y);
 		Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
-	}
-	for (PowerUp& powerUp : this->PowerUps)
-		if (!powerUp.Destroyed)
-		{
-			if (powerUp.Position.y >= this->Height)
-				powerUp.Destroyed = true;
-			if (CheckCollision(*Player, powerUp))
-			{
-				// player got the power up
-				ActivatePowerUp(powerUp);
-				powerUp.Destroyed = true;
-				powerUp.Activated = true;
-			}
-		}
-		
+	}	
 }
 
 void Game::ResetLevel()
