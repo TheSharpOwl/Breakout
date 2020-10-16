@@ -5,6 +5,7 @@
 #include "ParticleGenerator.hpp"
 #include  "PostProcessor.hpp"
 #include "PowerUp.hpp"
+#include "TextRenderer.hpp"
 #include <iostream>
 #include<irrKlang.h>
 
@@ -12,12 +13,15 @@ using namespace irrklang;
 
 // TODO : BUG : power up sticky ball doesn't seem to work (turn off the rest and test)
 // TODO : BUG : first time the bricks are so weak (ball can pass them and continue forawed)
-
+// TODO : BUG : the strong block doesn't work from behind sometimes (especially the first one from the right)
+// TODO : The power up keeps dropping and might affect player for the next level after losing the lives
+// TODO : make sure if you finished the level (if you didn't you can't pass the level->completed condition) that it will do the winning effects
 SpriteRenderer* Renderer;
 GameObject* Player;
 ParticleGenerator* Particles;
 BallObject* Ball;
 PostProcessor* Effects;
+TextRenderer *Text;
 ISoundEngine* SoundEngine = createIrrKlangDevice();
 
 // Initial velocity of the Ball
@@ -126,7 +130,10 @@ void Game::Init()
 		-BALL_RADIUS * 2.0f);
 	Ball = new BallObject(ballPos, BALL_RADIUS, INITIAL_BALL_VELOCITY, ResourceManager::GetTexture("face"));
 
-	// TODO uncomment
+	Text = new TextRenderer(this->Width, this->Height);
+	Text->Load("resources/fonts/ocraext.TTF", 24);
+
+	// NOTE : Uncomment if you want to play music during the game
 	//SoundEngine->play2D("resources/audio/breakout.mp3", true);
 }
 void ActivatePowerUp(PowerUp& powerUp)
@@ -188,6 +195,36 @@ void Game::ProcessInput(float dt)
 			Ball->Stuck = false;
 		}
 	}
+	else if (this->State == GAME_MENU)
+	{
+		if (this->Keys[GLFW_KEY_ENTER] && !this->KeysProcessed[GLFW_KEY_ENTER])
+		{
+			this->State = GAME_ACTIVE;
+			this->KeysProcessed[GLFW_KEY_ENTER] = true;
+		}
+		if (this->Keys[GLFW_KEY_W] && !this->KeysProcessed[GLFW_KEY_W])
+		{
+			this->Level = (this->Level + 1) % 4;
+			this->KeysProcessed[GLFW_KEY_W] = true;
+		}
+		if (this->Keys[GLFW_KEY_S] && !this->KeysProcessed[GLFW_KEY_S])
+		{
+			if (this->Level > 0)
+				--this->Level;
+			else
+				this->Level = 3;
+			this->KeysProcessed[GLFW_KEY_S] = true;
+		}
+	}
+	else if(this->State == GAME_WIN)
+	{
+		if (this->Keys[GLFW_KEY_ENTER])
+		{
+			this->KeysProcessed[GLFW_KEY_ENTER] = true;
+			Effects->Chaos = false;
+			this->State = GAME_MENU;
+		}
+	}
 }
 void Game::Update(float dt)
 {
@@ -203,14 +240,28 @@ void Game::Update(float dt)
 	}
 	if (Ball->Position.y >= this->Height) // if the bottom reached the bottom edge or got out
 	{
+		if(this->Lives != 0)
+			this->Lives--;
+		// game over case
+		if (this->Lives <= 0)
+		{
+			this->State = GAME_MENU;
+			this->Lives = 3;
+		}
 		this->ResetLevel();
 		this->ResetPlayer();
 	}
-
+	if (this->State == GAME_ACTIVE && this->Levels[this->Level].IsCompleted())
+	{
+		this->ResetLevel();
+		this->ResetPlayer();
+		Effects->Chaos = true;
+		this->State = GAME_WIN;
+	}
 }
 void Game::Render()
 {
-	if (this->State == GAME_ACTIVE)
+	if (this->State == GAME_ACTIVE || this->State == GAME_MENU || this->State == GAME_WIN)
 	{
 		Effects->BeginRender();
 
@@ -231,7 +282,29 @@ void Game::Render()
 
 		Effects->EndRender();
 		Effects->Render(glfwGetTime());
+
+		std::stringstream ss;
+		ss << this->Lives;
+		Text->RenderText("Lives:" + ss.str(), 5.f, 5.f, 1.f);
+
+
 	}
+
+	if (this->State == GAME_MENU)
+	{
+		Text->RenderText("Press ENTER to start", 250.0f, Height / 2, 1.0f);
+		Text->RenderText("Press W or S to select level", 245.0f, Height / 2 + 20.0f, 0.75f);
+	}
+	else if (this->State == GAME_WIN)
+	{
+		Text->RenderText(
+			"You WON!!!", 320.0, Height / 2 - 20.0, 1.0, glm::vec3(0.0, 1.0, 0.0)
+		);
+		Text->RenderText(
+			"Press ENTER to retry or ESC to quit", 130.0, Height / 2, 1.0, glm::vec3(1.0, 1.0, 0.0)
+		);
+	}
+
 }
 
 void Game::DoCollisions()

@@ -57,6 +57,9 @@
     <ClCompile Include="PowerUp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -98,6 +101,9 @@
     <ClInclude Include="PowerUp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextRenderer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SpriteVer.glsl">
@@ -116,6 +122,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\PostProcessingVert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\text_2d.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\text_2d.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

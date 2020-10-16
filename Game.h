@@ -40,8 +40,14 @@ Collision checkCollision(const BallObject& one, const GameObject& two);
 class Game
 {
 public:
+	Game(unsigned int width, unsigned int height);
+	~Game();
+
 	GameState State;
 	bool Keys[1024];
+	// added because of the gui keyboard issue
+	///(https://learnopengl.com/In-Practice/2D-Game/Render-text) Level selection paragraph, after the picture
+	bool KeysProcessed[1024];
 	unsigned int Width, Height;
 
 	std::vector<GameLevel> Levels;
@@ -49,8 +55,7 @@ public:
 
 	std::vector<PowerUp> PowerUps;
 
-	Game(unsigned int width, unsigned int height);
-	~Game();
+	unsigned int Lives;
 
 	//initialize game state (loading all shaders/textures/levels)
 	void Init();

@@ -146,7 +146,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		else if (action == GLFW_RELEASE)
 		{
 			game->Keys[key] = false;
-			//game->KeysProcessed[key] = false;
+			game->KeysProcessed[key] = false;
 		}
 	}
 }
